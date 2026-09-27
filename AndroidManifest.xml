@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Untuk akses "Eksternal Storage" penuh seperti versi Flask (path /storage/...).
+         Wajib diminta manual oleh user lewat Settings (lihat MainActivity). -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- INTERNET di sini hanya untuk WebView memuat gambar dsb dari data: URI (opsional),
+         BUKAN untuk menjalankan server. Boleh dihapus jika tidak load apapun dari jaringan. -->
+
+    <!-- Tanpa ini, di Android 10 (API 29) FileStorageManager.hasManageStoragePermission()
+         balikan `true` (karena MANAGE_EXTERNAL_STORAGE baru ada mulai API 30 & hanya
+         dicek untuk SDK>=30), padahal Scoped Storage sudah aktif secara default di API 29
+         -- sehingga menulis ke folder "Eksternal Storage" pilihan user (path bebas di
+         luar folder app) akan GAGAL diam-diam meski kode mengira sudah punya akses.
+         Diabaikan otomatis di API 30+ (di sana MANAGE_EXTERNAL_STORAGE yang berlaku). -->
+    <application
+        android:allowBackup="true"
+        android:label="Pustaka"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:usesCleartextTraffic="false"
+        android:requestLegacyExternalStorage="true"
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.nie.pustaka.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>
